@@ -1,11 +1,41 @@
-import React from 'react';
-import { View, Image, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+// KeyboardAvoidingView behavior="padding" é para o teclado ficar em baixo dos inputs
+// AsyncStorage é um banco sqlite
+import { View, AsyncStorage, KeyboardAvoidingView, Platform, Image, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+
+import api from '../services/api';
 
 import logo from '../assets/logo.png';
 
-export default function Login(){
+export default function Login({ navigation }){
+    const [email, setEmail] = useState('');
+    const [techs, setTechs] = useState('');
+
+    useEffect(() => {
+        //se existir alguma coisa na variavel user irei navegar para o List
+        AsyncStorage.getItem('user').then(user => {
+            if(user){
+                navigation.navigate('List');
+            }
+        })
+    }, []);
+
+    async function handleSubmit(){
+        const response = await api.post('/sessions', {
+            email
+        });
+
+        const { _id } = response.data;
+
+        await AsyncStorage.setItem('user', _id);
+        await AsyncStorage.setItem('techs', techs);
+        
+        //o List precisa esta cadastrado em nossas rotas
+        navigation.navigate('List');
+    }
+
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
             <Image source={logo} />
             {/* o formulario vai ser como se fosse outra view */}
             <View style={styles.form}>
@@ -20,6 +50,9 @@ export default function Login(){
                     autoCapitalize="none"
                     // para não tentar corrigr o email digitado
                     autoCorrect={false}
+                    value={email}
+                    // recebemos o texto que o usuario digitou dentro do input
+                    onChangeText={setEmail}
                 />
 
             <Text style={styles.label}>TECNOLOGIAS *</Text>
@@ -31,14 +64,17 @@ export default function Login(){
                     autoCapitalize="words"
                     // para não tentar corrigr o email digitado
                     autoCorrect={false}
+                    value={techs}
+                    // recebemos o texto que o usuario digitou dentro do input
+                    onChangeText={setTechs}
                 />
 
                 {/* aqui as tags não herdam os css */}
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                     <Text style={styles.buttonText}>Encontrar spots</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 
