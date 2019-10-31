@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Image, AsyncStorage } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Image, AsyncStorage } from 'react-native';
 
 import SpotList from '../components/SpotList';
 
@@ -21,7 +21,9 @@ export default function List(){
             <Image style={styles.logo} source={logo} />
 
             {/* posso dizer que aqui faz referencia as tecnologias e irei fazer um loop */}
-            {techs.map(tech => <SpotList key={tech} tech={tech} />)}
+            <ScrollView>
+                {techs.map(tech => <SpotList key={tech} tech={tech} />)}
+            </ScrollView>
         </SafeAreaView>
     )
 }
